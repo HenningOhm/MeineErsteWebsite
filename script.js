@@ -2,92 +2,191 @@
 'use strict';
 
 // jQuery-Weg, um zu warten, bis das Dokument bereit ist
-// Entspricht document.addEventListener('DOMContentLoaded', ...)
 $(document).ready(function() {
 
     // 1. Elemente auswählen mit jQuery
-    // Statt document.getElementById('id') nutzen wir $('#id')
-    // Das '$' ist das Haupt-Werkzeug von jQuery.
-    const $promptForm = $('#prompt-form'); // Konvention: jQuery-Objekte mit $ benennen
+    const $promptForm = $('#prompt-form');
     const $topicInput = $('#topic-input');
     const $resultArea = $('#result-area');
+    const $submitButton = $promptForm.find('button[type="submit"]');
+    
+    // 2. Animation für Sektionen beim Laden
+    $('.fade-in').each(function(index) {
+        $(this).css({
+            'opacity': '0',
+            'transform': 'translateY(20px)',
+            'transition': 'opacity 0.5s ease, transform 0.5s ease',
+            'transition-delay': (index * 0.2) + 's'
+        });
+        
+        setTimeout(() => {
+            $(this).css({
+                'opacity': '1',
+                'transform': 'translateY(0)'
+            });
+        }, 100);
+    });
+    
+    // 3. Fokus auf das Eingabefeld setzen
+    $topicInput.focus();
+    
+    // Funktion zum Formatieren der KI-Antwort
+    function formatAIResponse(text) {
+        // Ersetze Markdown-ähnliche Formatierung mit HTML
+        return text
+            // Entferne "Antwort von Gemini erhalten"
+            .replace(/^Antwort von Gemini erhalten\.\s*/i, '')
+            // Ersetze **text** mit <strong>text</strong>
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            // Ersetze *text* mit <em>text</em>
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            // Ersetze `text` mit <code>text</code>
+            .replace(/`(.*?)`/g, '<code>$1</code>')
+            // Ersetze ```text``` mit <pre><code>text</code></pre>
+            .replace(/```(.*?)```/g, '<pre><code>$1</code></pre>')
+            // Ersetze Zeilenumbrüche mit <br>
+            .replace(/\n/g, '<br>');
+    }
 
-    // 2. Event Listener hinzufügen mit jQuery
-    // Statt promptForm.addEventListener('submit', ...) nutzen wir .on('submit', ...)
-        // BLOCK: Submit-Handler (angepasst für AJAX)
-        $promptForm.on('submit', function(event) {
-            // 3. Standard-Formularverhalten verhindern (bleibt gleich)
-            event.preventDefault();
+    // 4. Event Listener für das Formular
+    $promptForm.on('submit', function(event) {
+        // Standard-Formularverhalten verhindern
+        event.preventDefault();
     
-            // 4. Wert aus dem Eingabefeld auslesen mit jQuery (bleibt gleich)
-            const topic = $topicInput.val().trim();
+        // Wert aus dem Eingabefeld auslesen
+        const topic = $topicInput.val().trim();
     
-            // 5. Prüfen, ob ein Thema eingegeben wurde (Frontend-Validierung)
-            if (!topic) {
-                $resultArea.html(`<p style="color: #ffcc80;">Bitte gib zuerst ein Thema ein.</p>`); // Hinweis direkt anzeigen
-                return; // Funktion hier beenden, keine Anfrage senden
-            }
+        // Prüfen, ob ein Thema eingegeben wurde
+        if (!topic) {
+            $resultArea.html(`
+                <div class="feedback error">
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    Bitte gib zuerst ein Thema ein.
+                </div>
+            `);
+            $topicInput.focus();
+            return;
+        }
+        
+        // Button-Status ändern während der Anfrage
+        $submitButton.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Suche...');
     
-            // 6. Daten an das Backend (api.php) senden (NEU: AJAX mit jQuery)
-            // $.ajax() ist die Hauptfunktion von jQuery für Anfragen an den Server.
-            $.ajax({
-                url: 'api.php', // Die PHP-Datei, die wir ansprechen wollen
-                type: 'POST',   // Die HTTP-Methode, die wir verwenden (passend zu PHP Block 1)
-                dataType: 'json', // Welchen Datentyp erwarten wir als Antwort? (passend zu PHP Block 4)
-                data: {         // Die Daten, die wir senden wollen
-                    topic: topic  // Schlüssel 'topic' mit dem Wert aus dem Input-Feld
-                },
-                            // 7. Funktion, die bei ERFOLGREICHER Antwort vom Server ausgeführt wird
-                            success: function(response) {
-                                console.log('Antwort vom Server:', response); // Beibehalten!
+        // Daten an das Backend senden
+        $.ajax({
+            url: 'api.php',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                topic: topic
+            },
+            success: function(response) {
+                console.log('Antwort vom Server:', response);
                 
-                                $resultArea.empty(); // Leeren
+                // Button-Status zurücksetzen
+                $submitButton.prop('disabled', false).html('<i class="fas fa-search"></i> Technik vorschlagen');
                 
-                                // Zeige die Nachricht vom Server (Status)
-                                $resultArea.append(`<p><em>${response.message}</em></p>`);
+                // Ergebnisbereich leeren und Animation vorbereiten
+                $resultArea.empty().css({
+                    'opacity': '0',
+                    'transform': 'translateY(10px)'
+                });
                 
-                                if (response.success) {
-                                    if (response.ai_response) {
-                                        // Wenn eine KI-Antwort vorhanden ist, zeige sie an
-                                        // Das nl2br() in PHP hat Zeilenumbrüche in <br> umgewandelt
-                                        $resultArea.append('<h3>KI Vorschlag:</h3>');
-                                        // Füge einen Div hinzu, um die Antwort zu stylen (optional)
-                                        $resultArea.append(`<div class="ai-response">${response.ai_response}</div>`);
-                
-                                    } else if (response.techniques && response.techniques.length > 0) {
-                                        // Fallback: Wenn keine KI-Antwort, aber Techniken gefunden wurden (z.B. bei leerer Eingabe)
-                                        $resultArea.append('<h3>Gefundene Techniken (keine KI-Anfrage gestellt):</h3>');
-                                        const $list = $('<ul></ul>');
-                                        response.techniques.forEach(function(technik) {
-                                            const $listItem = $('<li></li>');
-                                            $listItem.html(`<strong>${technik.name}:</strong> ${technik.description} ${technik.keywords ? '('+technik.keywords+')' : ''}`);
-                                            $list.append($listItem);
-                                        });
-                                        $resultArea.append($list);
-                                    }
-                                } else {
-                                    // Wenn response.success false war (Fehlermeldung wird schon oben angezeigt)
-                                    // Nichts extra hinzufügen, die Fehlermeldung reicht.
-                                }
-                            },
-                // 8. Funktion, die bei einem FEHLER während der Anfrage ausgeführt wird
-                error: function(jqXHR, textStatus, errorThrown) {
-                    // Wird ausgeführt, wenn der Server nicht erreichbar ist,
-                    // einen Serverfehler (500) zurückgibt oder die Antwort kein gültiges JSON ist.
-                    console.error('AJAX Fehler:', textStatus, errorThrown, jqXHR); // Details in die Konsole
-                    $resultArea.html(`<p style="color: #ef9a9a;">Ein Fehler ist aufgetreten. Konnte den Server nicht erreichen oder Antwort nicht verarbeiten.</p>`);
-                },
-                // 9. (Optional) Etwas anzeigen, während wir warten
-                beforeSend: function() {
-                    $resultArea.html('<p>Sende Anfrage an Server...</p>'); // Feedback für den Nutzer
+                if (response.success) {
+                    if (response.ai_response) {
+                        // KI-Antwort formatieren und anzeigen
+                        const formattedResponse = formatAIResponse(response.ai_response);
+                        $resultArea.append('<h3><i class="fas fa-robot"></i> KI Vorschlag:</h3>');
+                        $resultArea.append(`<div class="ai-response">${formattedResponse}</div>`);
+                    } else if (response.techniques && response.techniques.length > 0) {
+                        // Gefundene Techniken anzeigen
+                        $resultArea.append('<h3><i class="fas fa-list-check"></i> Gefundene Techniken:</h3>');
+                        const $list = $('<ul class="techniques-list"></ul>');
+                        
+                        response.techniques.forEach(function(technik) {
+                            const $listItem = $('<li></li>');
+                            $listItem.html(`
+                                <strong><i class="fas fa-star"></i> ${technik.name}:</strong> 
+                                <p>${technik.description}</p>
+                                ${technik.keywords ? `<div class="keywords"><i class="fas fa-tags"></i> ${technik.keywords}</div>` : ''}
+                            `);
+                            $list.append($listItem);
+                        });
+                        
+                        $resultArea.append($list);
+                    }
+                } else {
+                    // Zeige Fehlermeldung
+                    $resultArea.append(`
+                        <div class="feedback error">
+                            <i class="fas fa-exclamation-circle"></i> 
+                            ${response.message}
+                        </div>
+                    `);
                 }
-            }); // Ende von $.ajax()
+                
+                // Animation für das Ergebnis
+                setTimeout(() => {
+                    $resultArea.css({
+                        'opacity': '1',
+                        'transform': 'translateY(0)',
+                        'transition': 'opacity 0.5s ease, transform 0.5s ease'
+                    });
+                }, 50);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error('AJAX Fehler:', textStatus, errorThrown, jqXHR);
+                
+                // Button-Status zurücksetzen
+                $submitButton.prop('disabled', false).html('<i class="fas fa-search"></i> Technik vorschlagen');
+                
+                $resultArea.html(`
+                    <div class="feedback error">
+                        <i class="fas fa-exclamation-circle"></i> 
+                        Ein Fehler ist aufgetreten. Konnte den Server nicht erreichen oder Antwort nicht verarbeiten.
+                    </div>
+                `);
+            },
+            beforeSend: function() {
+                $resultArea.html(`
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> 
+                        Sende Anfrage an Server...
+                    </div>
+                `);
+            }
+        });
+    });
     
-            // Das alte Anzeigen im Frontend (vor AJAX) wird entfernt.
-            // $resultArea.html(...); // Diese Zeilen von vorher sind jetzt weg!
+    // 5. Event Listener für Tastatureingaben (Enter-Taste)
+    $topicInput.on('keypress', function(e) {
+        if (e.which === 13) { // Enter-Taste
+            $promptForm.submit();
+        }
+    });
     
-            // Optional: Eingabefeld leeren mit jQuery
-            // $topicInput.val('');
-        }); // Ende des Submit-Handlers
-
-}); // Ende des $(document).ready
+    // 6. Hover-Effekt für Buttons
+    $('button').hover(
+        function() {
+            $(this).addClass('button-hover');
+        },
+        function() {
+            $(this).removeClass('button-hover');
+        }
+    );
+    
+    // 7. Tooltip für das Eingabefeld
+    $topicInput.attr('title', 'Gib hier dein Thema ein, zu dem du eine passende Prompt-Technik suchst.');
+    
+    // 8. Responsive Anpassungen
+    function adjustForMobile() {
+        if ($(window).width() < 768) {
+            $('section').css('padding', '1.5rem');
+        } else {
+            $('section').css('padding', '2rem');
+        }
+    }
+    
+    // Beim Laden und bei Größenänderung des Fensters
+    adjustForMobile();
+    $(window).resize(adjustForMobile);
+});

@@ -1,7 +1,11 @@
 <?php
 // logout.php
 declare(strict_types=1);
-session_start(); // Session starten, um sie bearbeiten zu können
+
+require_once __DIR__ . '/security.php';
+
+// Sichere Session initialisieren
+Security::initSecureSession();
 
 // Alle Session-Variablen löschen
 $_SESSION = [];

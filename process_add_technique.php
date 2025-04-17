@@ -1,22 +1,34 @@
 <?php
 // process_add_technique.php
 declare(strict_types=1);
-session_start(); // Session starten
+
+require_once __DIR__ . '/security.php';
+
+// Sichere Session initialisieren
+Security::initSecureSession();
 
 // Prüfen, ob der Benutzer eingeloggt ist
 if (!isset($_SESSION['is_admin_logged_in']) || $_SESSION['is_admin_logged_in'] !== true) {
     // Nicht eingeloggt: Zugriff verweigern oder weiterleiten
-    // Da dies ein API-Endpunkt ist, ist eine Fehlermeldung oder 403 Forbidden besser als Redirect
     http_response_code(403); // Forbidden
     echo "Zugriff verweigert. Bitte einloggen.";
-    // Alternativ: header('Location: login.php');
     exit;
 }
 
-// Wenn eingeloggt, führe den Rest des Skripts aus...
-// (Hier beginnt der bisherige Inhalt von process_add_technique.php)
-require __DIR__ . '/vendor/autoload.php'; // Sicherstellen, dass Autoloader hier auch geladen wird
-// .env laden (optional hier, wenn keine API Keys gebraucht, aber schadet nicht)
+// Prüfen, ob die Session noch gültig ist
+if (!Security::isSessionValid()) {
+    // Session abgelaufen, ausloggen
+    session_unset();
+    session_destroy();
+    header('Location: login.php?message=' . urlencode('Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.'));
+    exit;
+}
+
+// Aktualisiere die Zeit der letzten Aktivität
+$_SESSION['last_activity'] = time();
+
+require __DIR__ . '/vendor/autoload.php';
+
 try {
     $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
     $dotenv->load();
@@ -36,24 +48,25 @@ $options = [
 try {
     $pdo = new PDO($dsn, null, null, $options);
 } catch (PDOException $e) {
-    // Schwerwiegender DB-Verbindungsfehler
-    // Leite zurück zum Formular mit Fehlermeldung
     header('Location: admin.php?status=error&message=' . urlencode('DB Connection Failed: ' . $e->getMessage()));
     exit;
 }
 
 // --- Formulardaten empfangen und validieren ---
-// Nur ausführen, wenn die Anfrage per POST kommt
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF-Schutz: Token überprüfen
+    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? null)) {
+        header('Location: admin.php?status=error&message=' . urlencode('Ungültige Anfrage. Bitte versuchen Sie es erneut.'));
+        exit;
+    }
 
     // Daten aus $_POST holen und trimmen
     $name = trim($_POST['name'] ?? '');
     $description = trim($_POST['description'] ?? '');
-    $keywords = trim($_POST['keywords'] ?? ''); // Keywords sind optional
+    $keywords = trim($_POST['keywords'] ?? '');
 
     // Einfache Validierung: Name und Beschreibung dürfen nicht leer sein
     if (empty($name) || empty($description)) {
-        // Leite zurück zum Formular mit Fehlermeldung
         header('Location: admin.php?status=error&message=' . urlencode('Name und Beschreibung dürfen nicht leer sein.'));
         exit;
     }
@@ -66,7 +79,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Werte binden
         $stmt->bindValue(':name', $name, PDO::PARAM_STR);
         $stmt->bindValue(':description', $description, PDO::PARAM_STR);
-        // Keywords können leer sein, PDO::PARAM_STR ist ok
         $stmt->bindValue(':keywords', $keywords, PDO::PARAM_STR);
 
         // Ausführen
@@ -77,18 +89,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
 
     } catch (PDOException $e) {
-        // Fehler beim Einfügen (z.B. DB-Constraint verletzt, unwahrscheinlich hier)
-        // Leite zurück zum Formular mit Fehlermeldung
-        $dbErrorMessage = $e->getMessage();
-        // Optional: Logge den Fehler für dich selbst
-        error_log("Fehler beim Einfügen in DB: " . $dbErrorMessage);
+        error_log("Fehler beim Einfügen in DB: " . $e->getMessage());
         header('Location: admin.php?status=error&message=' . urlencode('Fehler beim Speichern in der Datenbank.'));
         exit;
     }
 
 } else {
     // Wenn jemand versucht, das Skript direkt aufzurufen (nicht per POST)
-    // Einfach zum Admin-Formular weiterleiten
     header('Location: admin.php');
     exit;
 }

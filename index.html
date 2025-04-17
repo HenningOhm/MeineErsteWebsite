@@ -6,36 +6,45 @@
     <title>Prompt Technik Finder</title>
     <!-- Verknüpfung zur CSS-Datei (kommt gleich) -->
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
     <header>
-        <h1>Prompt Technik Finder</h1>
+        <h1><i class="fas fa-magic"></i> Prompt Technik Finder</h1>
     </header>
 
     <main>
-        <section id="input-section">
-            <h2>Beschreibe dein Thema oder Problem:</h2>
-            <!-- Das Formular: sendet Daten vorerst nicht wirklich weg -->
+        <section id="input-section" class="fade-in">
+            <h2><i class="fas fa-lightbulb"></i> Beschreibe dein Thema oder Problem</h2>
+            <p class="section-description">Gib ein Thema ein, zu dem du eine passende Prompt-Technik suchst. Unser KI-System wird dir die besten Techniken vorschlagen.</p>
+            
             <form id="prompt-form" action="#" method="get">
-                <label for="topic-input">Thema:</label>
-                <input type="text" id="topic-input" name="topic" placeholder="z.B. Kreatives Schreiben verbessern">
-
-                <button type="submit">Technik vorschlagen</button>
+                <div class="form-group">
+                    <label for="topic-input">Thema:</label>
+                    <input type="text" id="topic-input" name="topic" placeholder="z.B. Kreatives Schreiben verbessern, Texte strukturieren, Geschichten entwickeln...">
+                </div>
+                
+                <button type="submit"><i class="fas fa-search"></i> Technik vorschlagen</button>
             </form>
         </section>
 
-        <section id="output-section">
-            <h2>Vorschlag:</h2>
+        <section id="output-section" class="fade-in">
+            <h2><i class="fas fa-list-check"></i> Vorschlag</h2>
             <div id="result-area">
-                <!-- Hier wird später das Ergebnis angezeigt -->
-                <p>Bitte gib oben ein Thema ein.</p>
+                <p class="placeholder-text">Bitte gib oben ein Thema ein, um passende Prompt-Techniken zu erhalten.</p>
             </div>
+        </section>
+        
+        <section id="info-section" class="fade-in">
+            <h2><i class="fas fa-info-circle"></i> Über den Prompt Technik Finder</h2>
+            <p>Der Prompt Technik Finder hilft dir dabei, die richtigen Prompt-Techniken für deine spezifischen Bedürfnisse zu finden. Egal ob du Texte schreibst, Code generierst oder kreative Inhalte erstellst - wir haben die passende Technik für dich.</p>
+            <p>Unsere Datenbank wird regelmäßig mit neuen Techniken aktualisiert, um dir immer die besten und aktuellsten Methoden zur Verfügung zu stellen.</p>
         </section>
     </main>
 
     <footer>
-        <p>Gebaut mit VibeCoding</p>
+        <p>&copy; 2023 Prompt Technik Finder | <a href="login.php">Admin-Bereich</a></p>
     </footer>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="script.js"></script>
