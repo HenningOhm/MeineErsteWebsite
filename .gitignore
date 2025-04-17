@@ -1,0 +1,23 @@
+# Ignoriere die .env Datei mit Geheimnissen
+.env
+
+# Ignoriere den Vendor-Ordner von Composer
+/vendor/
+
+# IDE und Editor Dateien
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Temporäre Dateien
+*.log
+*.cache
+*.tmp
+
+# System Dateien
+.DS_Store
+Thumbs.db
+
+# Debug Dateien
+*DEBUG.php

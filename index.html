@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="de"> <!-- Sprache auf Deutsch setzen -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Wichtig für mobile Ansicht -->
+    <title>Prompt Technik Finder</title>
+    <!-- Verknüpfung zur CSS-Datei (kommt gleich) -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>Prompt Technik Finder</h1>
+    </header>
+
+    <main>
+        <section id="input-section">
+            <h2>Beschreibe dein Thema oder Problem:</h2>
+            <!-- Das Formular: sendet Daten vorerst nicht wirklich weg -->
+            <form id="prompt-form" action="#" method="get">
+                <label for="topic-input">Thema:</label>
+                <input type="text" id="topic-input" name="topic" placeholder="z.B. Kreatives Schreiben verbessern">
+
+                <button type="submit">Technik vorschlagen</button>
+            </form>
+        </section>
+
+        <section id="output-section">
+            <h2>Vorschlag:</h2>
+            <div id="result-area">
+                <!-- Hier wird später das Ergebnis angezeigt -->
+                <p>Bitte gib oben ein Thema ein.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Gebaut mit VibeCoding</p>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="script.js"></script>
+</body>
+</html>

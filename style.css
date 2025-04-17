@@ -1,0 +1,142 @@
+/* Globale Stile & Dark Mode Basis */
+body {
+    background-color: #121212; /* Sehr dunkles Grau als Hintergrund */
+    color: #e0e0e0;           /* Helles Grau für den Standardtext */
+    font-family: sans-serif;  /* Eine einfache, serifenlose Schrift */
+    line-height: 1.6;         /* Etwas mehr Zeilenabstand für Lesbarkeit */
+    margin: 0;                /* Kein äußerer Abstand für den Body */
+    padding: 20px;            /* Innenabstand, damit Inhalt nicht am Rand klebt */
+}
+
+/* Container für bessere Lesbarkeit auf breiten Bildschirmen (optional aber gut) */
+main {
+    max-width: 800px; /* Maximale Breite des Hauptinhalts */
+    margin: 20px auto; /* Oben/unten Abstand, links/rechts automatisch zentriert */
+    padding: 20px;
+    background-color: #1e1e1e; /* Etwas hellerer Hintergrund für den Inhaltsbereich */
+    border-radius: 8px; /* Leicht abgerundete Ecken */
+}
+
+/* Überschriften */
+h1, h2 {
+    color: #bb86fc; /* Eine Akzentfarbe (lila-ähnlich) für Überschriften */
+    border-bottom: 1px solid #333; /* Leichte Trennlinie unter Überschriften */
+    padding-bottom: 10px;
+    margin-top: 0; /* Oft gut, den oberen Abstand der ersten Überschrift zu entfernen */
+    margin-bottom: 1.5rem; /* Einheitlicher Abstand nach Überschriften */
+}
+
+/* --- NEUER Formular-Styling Block --- */
+
+/* Styling für alle Formulare innerhalb von <main> */
+main form label {
+    display: block; /* Label über dem Input/Textarea anzeigen */
+    margin-bottom: 8px; /* Etwas mehr Abstand zum Feld */
+    color: #cfcfcf;
+    font-weight: bold; /* Label etwas hervorheben */
+}
+
+/* Gemeinsames Styling für Text-Inputs, Passwort-Inputs und Textareas */
+main form input[type="text"],
+main form input[type="password"], /* Wichtig für die Login-Seite später */
+main form textarea {
+    display: block;            /* Sicherstellen, dass sie die volle Breite einnehmen */
+    width: 100%;               /* Volle Breite des Elternelements */
+    padding: 12px;             /* Etwas mehr Innenabstand */
+    margin-bottom: 20px;       /* Größerer Abstand nach unten für bessere Trennung */
+    border: 1px solid #444;
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    border-radius: 4px;
+    font-size: 1rem;
+    box-sizing: border-box;    /* Padding und Border in die Breite einrechnen! */
+}
+
+/* Spezifisches Styling für Textareas (falls nötig) */
+main form textarea {
+    min-height: 120px;        /* Mindesthöhe für mehr Platz */
+    resize: vertical;         /* Erlaubt nur vertikales Vergrößern/Verkleinern */
+}
+
+/* Styling für Buttons innerhalb von Formularen in <main> */
+main form button {
+    padding: 12px 25px; /* Etwas größerer Button */
+    background-color: #bb86fc;
+    color: #121212;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: bold; /* Text im Button hervorheben */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+main form button:hover {
+    background-color: #a06cd5;
+}
+
+/* Optional: Styling für die .form-group divs (falls du sie noch verwendest) */
+/* Wenn du keine .form-group mehr im HTML hast, kannst du das löschen */
+main form .form-group {
+    margin-bottom: 20px; /* Etwas mehr Abstand zwischen den Gruppen */
+}
+
+/* Feedback-Nachrichten Styling (aus admin.php Beispiel) */
+.feedback {
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    text-align: center;
+}
+.feedback.success {
+    background-color: #27ae60; /* Grün */
+    color: #fff;
+    border: 1px solid #2ecc71;
+}
+.feedback.error {
+    background-color: #c0392b; /* Rot */
+    color: #fff;
+    border: 1px solid #e74c3c;
+}
+
+
+/* --- Ende NEUER Formular-Styling Block --- */
+
+
+/* Ergebnisbereich (aus index.html) */
+#result-area {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #2c2c2c;
+    border: 1px solid #444;
+    border-radius: 4px;
+    min-height: 50px; /* Mindesthöhe, damit es nicht leer aussieht */
+}
+
+/* Footer (aus index.html) */
+footer {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 0.9em;
+    color: #777;
+}
+
+/* Styling für den Footer-Link im Admin-Bereich */
+.admin-footer-link {
+    margin-top: 2rem; /* Abstand nach oben (ca. 32px, kannst du anpassen z.B. auf 20px) */
+    text-align: center; /* Link zentrieren */
+    font-size: 0.9em; /* Etwas kleinerer Text */
+}
+
+.admin-footer-link a {
+    color: #aaa; /* Helleres Grau, weniger auffällig */
+    text-decoration: none; /* Kein Unterstrich standardmäßig */
+    transition: color 0.3s ease; /* Sanfter Farbwechsel beim Drüberfahren */
+}
+
+.admin-footer-link a:hover {
+    color: #ccc; /* Etwas heller beim Drüberfahren */
+    text-decoration: underline; /* Unterstrich beim Drüberfahren anzeigen */
+}
+
+/* CSS-Kommentare erklären, was die Regeln tun */
